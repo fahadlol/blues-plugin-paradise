@@ -47,7 +47,12 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-6">
+            <Button 
+              variant="hero" 
+              size="lg" 
+              className="text-lg px-8 py-6"
+              onClick={() => document.getElementById('prebuilt')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <Zap className="w-5 h-5 mr-2" />
               Shop Plugins Now
             </Button>

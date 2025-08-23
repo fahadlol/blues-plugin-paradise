@@ -2,6 +2,8 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import FeaturedPlugins from "@/components/FeaturedPlugins";
 import WhyChooseUs from "@/components/WhyChooseUs";
+import CustomPlugins from "@/components/CustomPlugins";
+import Bundles from "@/components/Bundles";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -12,6 +14,8 @@ const Index = () => {
         <Hero />
         <FeaturedPlugins />
         <WhyChooseUs />
+        <CustomPlugins />
+        <Bundles />
       </main>
       <Footer />
     </div>

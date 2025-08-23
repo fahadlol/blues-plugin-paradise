@@ -13,6 +13,13 @@ const Navbar = () => {
     { label: "Contact", href: "#contact" },
   ];
 
+  const handleGetStarted = () => {
+    const pluginsSection = document.getElementById('prebuilt');
+    if (pluginsSection) {
+      pluginsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4">
@@ -42,7 +49,7 @@ const Navbar = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Button variant="hero" size="sm">
+            <Button variant="hero" size="sm" onClick={handleGetStarted}>
               Get Started
             </Button>
           </div>
@@ -70,7 +77,7 @@ const Navbar = () => {
                   {item.label}
                 </a>
               ))}
-              <Button variant="hero" size="sm" className="mt-4">
+              <Button variant="hero" size="sm" className="mt-4" onClick={handleGetStarted}>
                 Get Started
               </Button>
             </div>
