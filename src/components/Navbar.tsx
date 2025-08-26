@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, userRole, signOut } = useAuth();
 
   const navItems = [
     { label: "Home", href: "#home" },
@@ -47,11 +50,41 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <Button variant="hero" size="sm" onClick={handleGetStarted}>
-              Get Started
-            </Button>
+          {/* Auth Section */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-2">
+                {(userRole === 'admin' || userRole === 'staff') && (
+                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/admin'}>
+                    <Settings className="w-4 h-4 mr-1" />
+                    Admin
+                  </Button>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <User className="w-4 h-4 mr-1" />
+                      {user.email}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={signOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm" onClick={() => window.location.href = '/auth'}>
+                  Sign In
+                </Button>
+                <Button variant="hero" size="sm" onClick={handleGetStarted}>
+                  Get Started
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -77,9 +110,30 @@ const Navbar = () => {
                   {item.label}
                 </a>
               ))}
-              <Button variant="hero" size="sm" className="mt-4" onClick={handleGetStarted}>
-                Get Started
-              </Button>
+              
+              {user ? (
+                <div className="flex flex-col space-y-2 pt-4 border-t">
+                  {(userRole === 'admin' || userRole === 'staff') && (
+                    <Button variant="outline" size="sm" onClick={() => window.location.href = '/admin'}>
+                      <Settings className="w-4 h-4 mr-1" />
+                      Admin Dashboard
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={signOut}>
+                    <LogOut className="w-4 h-4 mr-1" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-2 pt-4 border-t">
+                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/auth'}>
+                    Sign In
+                  </Button>
+                  <Button variant="hero" size="sm" onClick={handleGetStarted}>
+                    Get Started
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}
