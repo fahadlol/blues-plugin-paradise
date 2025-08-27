@@ -83,6 +83,66 @@ export type Database = {
         }
         Relationships: []
       }
+      plugins: {
+        Row: {
+          category: string
+          changelog: Json | null
+          content: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          downloads: number
+          features: Json | null
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          price: number
+          rating: number
+          requirements: Json | null
+          thumbnail: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          changelog?: Json | null
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          downloads?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          price?: number
+          rating?: number
+          requirements?: Json | null
+          thumbnail?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          changelog?: Json | null
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          downloads?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          price?: number
+          rating?: number
+          requirements?: Json | null
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

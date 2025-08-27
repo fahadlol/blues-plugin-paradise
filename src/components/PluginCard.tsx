@@ -1,18 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, Download, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface PluginCardProps {
+  id?: string;
   title: string;
   description: string;
-  price: string;
+  price: string | number;
   rating: number;
-  downloads: string;
+  downloads: string | number;
   thumbnail: string;
   category: string;
 }
 
 const PluginCard = ({ 
+  id,
   title, 
   description, 
   price, 
@@ -21,8 +24,21 @@ const PluginCard = ({
   thumbnail, 
   category 
 }: PluginCardProps) => {
-  return (
-    <Card className="group bg-gradient-card border-border hover:border-primary/50 transition-all duration-300 hover:scale-105 hover:shadow-glow overflow-hidden">
+  const formatPrice = (price: string | number) => {
+    if (typeof price === 'number') {
+      return `$${price.toFixed(2)}`;
+    }
+    return price;
+  };
+
+  const formatDownloads = (downloads: string | number) => {
+    if (typeof downloads === 'number') {
+      return downloads >= 1000 ? `${Math.floor(downloads / 1000)}k+` : `${downloads}`;
+    }
+    return downloads;
+  };
+  const cardContent = (
+    <Card className="group bg-gradient-card border-border hover:border-primary/50 transition-all duration-300 hover:scale-105 hover:shadow-glow overflow-hidden cursor-pointer">
       {/* Thumbnail */}
       <div className="relative h-48 bg-muted overflow-hidden">
         <img 
@@ -64,9 +80,9 @@ const PluginCard = ({
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center space-x-1">
             <Download className="w-4 h-4" />
-            <span>{downloads} downloads</span>
+            <span>{formatDownloads(downloads)} downloads</span>
           </div>
-          <span className="text-2xl font-bold text-foreground">{price}</span>
+          <span className="text-2xl font-bold text-foreground">{formatPrice(price)}</span>
         </div>
       </CardContent>
 
@@ -77,6 +93,16 @@ const PluginCard = ({
       </CardFooter>
     </Card>
   );
+
+  if (id) {
+    return (
+      <Link to={`/plugin/${id}`} className="block">
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 };
 
 export default PluginCard;

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { OrdersManager } from '@/components/admin/OrdersManager';
 import { PrebuiltsManager } from '@/components/admin/PrebuiltsManager';
+import PluginsManager from '@/components/admin/PluginsManager';
 
 export default function AdminDashboard() {
   const { user, userRole, signOut, loading } = useAuth();
@@ -140,18 +141,23 @@ export default function AdminDashboard() {
           <CardHeader>
             <CardTitle>Management</CardTitle>
             <CardDescription>
-              Manage orders and custom prebuilts
+              Manage orders, plugins, and custom prebuilts
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="orders" className="space-y-4">
               <TabsList>
                 <TabsTrigger value="orders">Orders</TabsTrigger>
+                <TabsTrigger value="plugins">Plugins</TabsTrigger>
                 <TabsTrigger value="prebuilts">Custom Prebuilts</TabsTrigger>
               </TabsList>
               
               <TabsContent value="orders" className="space-y-4">
                 <OrdersManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+
+              <TabsContent value="plugins" className="space-y-4">
+                <PluginsManager onStatsUpdate={fetchStats} />
               </TabsContent>
               
               <TabsContent value="prebuilts" className="space-y-4">

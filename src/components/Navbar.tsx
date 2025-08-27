@@ -9,11 +9,11 @@ const Navbar = () => {
   const { user, userRole, signOut } = useAuth();
 
   const navItems = [
-    { label: "Home", href: "#home" },
+    { label: "Home", href: "/" },
     { label: "Prebuilt Plugins", href: "#prebuilt" },
     { label: "Custom Plugins", href: "#custom" },
     { label: "Bundles", href: "#bundles" },
-    { label: "Contact", href: "#contact" },
+    { label: "Contact", href: "/contact" },
   ];
 
   const handleGetStarted = () => {
@@ -39,15 +39,35 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                {item.label}
-              </a>
-            ))}
+            {navItems.map((item) => {
+              if (item.href.startsWith('#')) {
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-300"
+                  >
+                    {item.label}
+                  </a>
+                );
+              } else {
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-300"
+                    onClick={(e) => {
+                      if (item.href.startsWith('/')) {
+                        e.preventDefault();
+                        window.location.href = item.href;
+                      }
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                );
+              }
+            })}
           </div>
 
           {/* Auth Section */}
@@ -105,7 +125,13 @@ const Navbar = () => {
                   key={item.label}
                   href={item.href}
                   className="text-muted-foreground hover:text-foreground transition-colors duration-300"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    setIsOpen(false);
+                    if (item.href.startsWith('/')) {
+                      e.preventDefault();
+                      window.location.href = item.href;
+                    }
+                  }}
                 >
                   {item.label}
                 </a>
