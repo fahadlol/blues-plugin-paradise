@@ -13,6 +13,7 @@ const Navbar = () => {
     { label: "Prebuilt Plugins", href: "#prebuilt" },
     { label: "Custom Plugins", href: "#custom" },
     { label: "Bundles", href: "#bundles" },
+    { label: "Support", href: "/support" },
     { label: "Contact", href: "/contact" },
   ];
 

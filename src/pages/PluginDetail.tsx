@@ -158,9 +158,11 @@ const PluginDetail = () => {
 
                 <div className="flex items-center space-x-4 mb-8">
                   <div className="text-3xl font-bold">${plugin.price}</div>
-                  <Button variant="hero" size="lg">
-                    Buy Now
-                  </Button>
+                  <Link to={`/checkout/${plugin.id}`}>
+                    <Button variant="hero" size="lg">
+                      Buy Now
+                    </Button>
+                  </Link>
                   {(userRole === 'admin' || userRole === 'staff') && (
                     <Link to={`/admin/plugins/${plugin.id}/edit`}>
                       <Button variant="outline">Edit Plugin</Button>

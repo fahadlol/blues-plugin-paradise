@@ -1,0 +1,286 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { CreditCard, Shield, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
+interface Plugin {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  thumbnail: string;
+  category: string;
+}
+
+const Checkout = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const [plugin, setPlugin] = useState<Plugin | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+
+  useEffect(() => {
+    document.title = "Checkout | Blues Marketplace";
+  }, []);
+
+  useEffect(() => {
+    // Redirect to auth if not logged in
+    if (!authLoading && !user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to purchase plugins",
+        variant: "destructive"
+      });
+      navigate("/auth");
+      return;
+    }
+  }, [user, authLoading, navigate, toast]);
+
+  useEffect(() => {
+    const fetchPlugin = async () => {
+      if (!id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('plugins')
+          .select('id, title, description, price, thumbnail, category')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        setPlugin(data);
+      } catch (error) {
+        console.error('Error fetching plugin:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load plugin details",
+          variant: "destructive"
+        });
+        navigate("/");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchPlugin();
+    }
+  }, [id, user, toast, navigate]);
+
+  const handlePayment = async (paymentMethod: 'card' | 'paypal') => {
+    if (!plugin || !user) return;
+
+    setProcessing(true);
+    try {
+      // Create order in database
+      const orderData = {
+        customer_id: user.id,
+        items: [{ plugin_id: plugin.id, title: plugin.title, price: plugin.price }],
+        total_amount: plugin.price,
+        status: 'pending',
+        customer_info: {
+          email: user.email,
+          payment_method: paymentMethod
+        }
+      };
+
+      const { data: order, error } = await supabase
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // For MVP, simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Update order status to completed
+      await supabase
+        .from('orders')
+        .update({ status: 'completed' })
+        .eq('id', order.id);
+
+      toast({
+        title: "Payment Successful!",
+        description: `You have successfully purchased ${plugin.title}`,
+      });
+
+      navigate(`/order-complete/${order.id}`);
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Failed",
+        description: "There was an error processing your payment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-20">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+            <div className="h-64 bg-muted rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to auth
+  }
+
+  if (!plugin) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-20 text-center">
+          <h1 className="text-3xl font-bold mb-4">Plugin Not Found</h1>
+          <Button onClick={() => navigate("/")} variant="hero">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      
+      <section className="pt-20 pb-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(`/plugin/${plugin.id}`)}
+              className="mb-8"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Plugin
+            </Button>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Order Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <img 
+                      src={plugin.thumbnail} 
+                      alt={plugin.title}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{plugin.title}</h3>
+                      <p className="text-sm text-muted-foreground">{plugin.description}</p>
+                      <Badge variant="secondary">{plugin.category}</Badge>
+                    </div>
+                    <div className="text-lg font-bold">${plugin.price}</div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Total</span>
+                    <span className="text-2xl font-bold">${plugin.price}</span>
+                  </div>
+
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Shield className="w-4 h-4 text-green-500" />
+                      <span className="font-medium">What you get:</span>
+                    </div>
+                    <ul className="text-sm space-y-1 text-muted-foreground">
+                      <li>• Instant download access</li>
+                      <li>• Lifetime updates</li>
+                      <li>• 24/7 support</li>
+                      <li>• 30-day money back guarantee</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Payment Methods */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment Method</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground mb-6">
+                    Choose your preferred payment method to complete your purchase.
+                  </p>
+
+                  <div className="space-y-3">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-16 text-left justify-start"
+                      onClick={() => handlePayment('card')}
+                      disabled={processing}
+                    >
+                      <CreditCard className="w-6 h-6 mr-3" />
+                      <div>
+                        <div className="font-semibold">Credit/Debit Card</div>
+                        <div className="text-sm text-muted-foreground">Visa, Mastercard, American Express</div>
+                      </div>
+                    </Button>
+
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-16 text-left justify-start"
+                      onClick={() => handlePayment('paypal')}
+                      disabled={processing}
+                    >
+                      <div className="w-6 h-6 mr-3 bg-[#0070ba] rounded flex items-center justify-center text-white text-xs font-bold">
+                        PP
+                      </div>
+                      <div>
+                        <div className="font-semibold">PayPal</div>
+                        <div className="text-sm text-muted-foreground">Pay with your PayPal account</div>
+                      </div>
+                    </Button>
+                  </div>
+
+                  {processing && (
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
+                      <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+                      <p className="text-sm">Processing your payment...</p>
+                    </div>
+                  )}
+
+                  <div className="text-xs text-muted-foreground pt-4 border-t">
+                    <p>By completing this purchase, you agree to our Terms of Service and Privacy Policy. Your payment is secured with industry-standard encryption.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Checkout;
