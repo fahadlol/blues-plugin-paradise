@@ -34,6 +34,7 @@ export function OrdersManager({ onStatsUpdate }: OrdersManagerProps) {
   const [orderForm, setOrderForm] = useState({
     status: 'pending',
     total_amount: '',
+    customer_id: '',
     customer_info: {
       name: '',
       email: '',
@@ -74,6 +75,7 @@ export function OrdersManager({ onStatsUpdate }: OrdersManagerProps) {
       const orderData = {
         status: orderForm.status,
         total_amount: parseFloat(orderForm.total_amount),
+        customer_id: orderForm.customer_id || '00000000-0000-0000-0000-000000000000', // Default UUID for admin-created orders
         customer_info: orderForm.customer_info,
         items: orderForm.items,
       };
@@ -121,6 +123,7 @@ export function OrdersManager({ onStatsUpdate }: OrdersManagerProps) {
     setOrderForm({
       status: order.status,
       total_amount: order.total_amount.toString(),
+      customer_id: (order as any).customer_id || '',
       customer_info: order.customer_info,
       items: order.items,
     });
@@ -158,6 +161,7 @@ export function OrdersManager({ onStatsUpdate }: OrdersManagerProps) {
     setOrderForm({
       status: 'pending',
       total_amount: '',
+      customer_id: '',
       customer_info: { name: '', email: '', phone: '' },
       items: [],
     });
@@ -224,6 +228,16 @@ export function OrdersManager({ onStatsUpdate }: OrdersManagerProps) {
                   value={orderForm.total_amount}
                   onChange={(e) => setOrderForm({ ...orderForm, total_amount: e.target.value })}
                   required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="customer_id">Customer ID (UUID)</Label>
+                <Input
+                  id="customer_id"
+                  value={orderForm.customer_id}
+                  onChange={(e) => setOrderForm({ ...orderForm, customer_id: e.target.value })}
+                  placeholder="Leave empty for default"
                 />
               </div>
 
