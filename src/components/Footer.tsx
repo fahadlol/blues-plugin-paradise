@@ -21,9 +21,9 @@ const Footer = () => {
       { label: "Press", href: "#press" }
     ],
     legal: [
-      { label: "Privacy Policy", href: "#privacy" },
-      { label: "Terms of Service", href: "#terms" },
-      { label: "Refund Policy", href: "#refund" },
+      { label: "Privacy Policy", href: "/policies/privacy_policy" },
+      { label: "Terms of Service", href: "/policies/terms_of_service" },
+      { label: "Refund Policy", href: "/policies/refund_policy" },
       { label: "License", href: "#license" }
     ]
   };

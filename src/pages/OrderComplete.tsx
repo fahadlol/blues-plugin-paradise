@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Download, Mail, ArrowRight, Home } from "lucide-react";
+import { CheckCircle, Download, Mail, ArrowRight, Home, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -32,9 +32,29 @@ const OrderComplete = () => {
   const { toast } = useToast();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refundPolicy, setRefundPolicy] = useState<string>('');
 
   useEffect(() => {
     document.title = "Order Complete | Blues Marketplace";
+    
+    const fetchRefundPolicy = async () => {
+      try {
+        const { data } = await supabase
+          .from('policies')
+          .select('content')
+          .eq('policy_type', 'refund_policy')
+          .eq('is_active', true)
+          .single();
+        
+        if (data) {
+          setRefundPolicy(data.content);
+        }
+      } catch (error) {
+        console.error('Error fetching refund policy:', error);
+      }
+    };
+
+    fetchRefundPolicy();
   }, []);
 
   useEffect(() => {
@@ -202,6 +222,31 @@ const OrderComplete = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {refundPolicy && (
+              <Card className="text-left mb-8">
+                <CardHeader>
+                  <CardTitle>Refund Policy</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2">30-Day Money Back Guarantee</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      We offer a full refund within 30 days of purchase for technical issues, compatibility problems, or if the plugin doesn't match the description.
+                    </p>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="p-0 h-auto"
+                      onClick={() => window.open('/policies/refund_policy', '_blank')}
+                    >
+                      View full refund policy
+                      <ExternalLink className="w-3 h-3 ml-1" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { OrdersManager } from '@/components/admin/OrdersManager';
 import { PrebuiltsManager } from '@/components/admin/PrebuiltsManager';
 import PluginsManager from '@/components/admin/PluginsManager';
+import PoliciesManager from '@/components/admin/PoliciesManager';
 
 export default function AdminDashboard() {
   const { user, userRole, signOut, loading } = useAuth();
@@ -150,6 +151,7 @@ export default function AdminDashboard() {
                 <TabsTrigger value="orders">Orders</TabsTrigger>
                 <TabsTrigger value="plugins">Plugins</TabsTrigger>
                 <TabsTrigger value="prebuilts">Custom Prebuilts</TabsTrigger>
+                <TabsTrigger value="policies">Policies</TabsTrigger>
               </TabsList>
               
               <TabsContent value="orders" className="space-y-4">
@@ -162,6 +164,10 @@ export default function AdminDashboard() {
               
               <TabsContent value="prebuilts" className="space-y-4">
                 <PrebuiltsManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+              
+              <TabsContent value="policies" className="space-y-4">
+                <PoliciesManager onStatsUpdate={fetchStats} />
               </TabsContent>
             </Tabs>
           </CardContent>

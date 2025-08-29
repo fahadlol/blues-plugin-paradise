@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, Shield, ArrowLeft } from "lucide-react";
+import { CreditCard, Shield, ArrowLeft, ExternalLink } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,8 @@ const Checkout = () => {
   const [plugin, setPlugin] = useState<Plugin | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [refundPolicy, setRefundPolicy] = useState<string>('');
 
   useEffect(() => {
     document.title = "Checkout | Blues Marketplace";
@@ -45,6 +48,27 @@ const Checkout = () => {
       return;
     }
   }, [user, authLoading, navigate, toast]);
+
+  useEffect(() => {
+    const fetchRefundPolicy = async () => {
+      try {
+        const { data } = await supabase
+          .from('policies')
+          .select('content')
+          .eq('policy_type', 'refund_policy')
+          .eq('is_active', true)
+          .single();
+        
+        if (data) {
+          setRefundPolicy(data.content);
+        }
+      } catch (error) {
+        console.error('Error fetching refund policy:', error);
+      }
+    };
+
+    fetchRefundPolicy();
+  }, []);
 
   useEffect(() => {
     const fetchPlugin = async () => {
@@ -79,6 +103,15 @@ const Checkout = () => {
 
   const handlePayment = async (paymentMethod: 'card' | 'paypal') => {
     if (!plugin || !user) return;
+
+    if (!agreedToTerms) {
+      toast({
+        title: "Agreement Required",
+        description: "Please agree to the Terms of Service and Refund Policy to continue",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setProcessing(true);
     try {
@@ -218,6 +251,24 @@ const Checkout = () => {
                       <li>• 30-day money back guarantee</li>
                     </ul>
                   </div>
+
+                  {refundPolicy && (
+                    <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+                      <h4 className="font-medium mb-2">Refund Policy Summary</h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        30-day money back guarantee for technical issues or compatibility problems.
+                      </p>
+                      <Button 
+                        variant="link" 
+                        size="sm" 
+                        className="p-0 h-auto"
+                        onClick={() => window.open('/policies/refund_policy', '_blank')}
+                      >
+                        View full refund policy
+                        <ExternalLink className="w-3 h-3 ml-1" />
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -231,34 +282,67 @@ const Checkout = () => {
                     Choose your preferred payment method to complete your purchase.
                   </p>
 
-                  <div className="space-y-3">
-                    <Button 
-                      variant="outline" 
-                      className="w-full h-16 text-left justify-start"
-                      onClick={() => handlePayment('card')}
-                      disabled={processing}
-                    >
-                      <CreditCard className="w-6 h-6 mr-3" />
-                      <div>
-                        <div className="font-semibold">Credit/Debit Card</div>
-                        <div className="text-sm text-muted-foreground">Visa, Mastercard, American Express</div>
+                  <div className="space-y-4">
+                    <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                      <Checkbox 
+                        id="terms-agreement"
+                        checked={agreedToTerms}
+                        onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                        className="mt-1"
+                      />
+                      <div className="text-sm">
+                        <label htmlFor="terms-agreement" className="cursor-pointer">
+                          I agree to the{' '}
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="p-0 h-auto"
+                            onClick={() => window.open('/policies/terms_of_service', '_blank')}
+                          >
+                            Terms of Service
+                          </Button>{' '}
+                          and{' '}
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="p-0 h-auto"
+                            onClick={() => window.open('/policies/refund_policy', '_blank')}
+                          >
+                            Refund Policy
+                          </Button>
+                        </label>
                       </div>
-                    </Button>
+                    </div>
 
-                    <Button 
-                      variant="outline" 
-                      className="w-full h-16 text-left justify-start"
-                      onClick={() => handlePayment('paypal')}
-                      disabled={processing}
-                    >
-                      <div className="w-6 h-6 mr-3 bg-[#0070ba] rounded flex items-center justify-center text-white text-xs font-bold">
-                        PP
-                      </div>
-                      <div>
-                        <div className="font-semibold">PayPal</div>
-                        <div className="text-sm text-muted-foreground">Pay with your PayPal account</div>
-                      </div>
-                    </Button>
+                    <div className="space-y-3">
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-16 text-left justify-start"
+                        onClick={() => handlePayment('card')}
+                        disabled={processing || !agreedToTerms}
+                      >
+                        <CreditCard className="w-6 h-6 mr-3" />
+                        <div>
+                          <div className="font-semibold">Credit/Debit Card</div>
+                          <div className="text-sm text-muted-foreground">Visa, Mastercard, American Express</div>
+                        </div>
+                      </Button>
+
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-16 text-left justify-start"
+                        onClick={() => handlePayment('paypal')}
+                        disabled={processing || !agreedToTerms}
+                      >
+                        <div className="w-6 h-6 mr-3 bg-[#0070ba] rounded flex items-center justify-center text-white text-xs font-bold">
+                          PP
+                        </div>
+                        <div>
+                          <div className="font-semibold">PayPal</div>
+                          <div className="text-sm text-muted-foreground">Pay with your PayPal account</div>
+                        </div>
+                      </Button>
+                    </div>
                   </div>
 
                   {processing && (

@@ -143,6 +143,42 @@ export type Database = {
         }
         Relationships: []
       }
+      policies: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          policy_type: string
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          policy_type: string
+          title: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          policy_type?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
