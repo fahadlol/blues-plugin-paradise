@@ -11,6 +11,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { StripeProvider } from "@/components/StripeProvider";
+import { StripeCardForm } from "@/components/StripeCardForm";
 
 interface Plugin {
   id: string;
@@ -101,7 +103,33 @@ const Checkout = () => {
     }
   }, [id, user, toast, navigate]);
 
-  const handlePayment = async (paymentMethod: 'card' | 'paypal') => {
+  const handlePaymentSuccess = async (paymentIntent: any) => {
+    if (!plugin || !user) return;
+
+    try {
+      // Update order status to completed using payment intent ID
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'completed' })
+        .eq('customer_info->>stripe_payment_intent_id', paymentIntent.id);
+
+      if (error) {
+        console.error('Error updating order:', error);
+      }
+
+      // Navigate to success page
+      navigate(`/order-complete?payment_intent=${paymentIntent.id}`);
+    } catch (error) {
+      console.error('Error handling payment success:', error);
+      toast({
+        title: "Warning",
+        description: "Payment succeeded but there was an issue updating your order. Please contact support.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePayPalPayment = async () => {
     if (!plugin || !user) return;
 
     if (!agreedToTerms) {
@@ -115,7 +143,7 @@ const Checkout = () => {
 
     setProcessing(true);
     try {
-      // Create order in database
+      // Create order in database for PayPal
       const orderData = {
         customer_id: user.id,
         items: [{ plugin_id: plugin.id, title: plugin.title, price: plugin.price }],
@@ -123,7 +151,7 @@ const Checkout = () => {
         status: 'pending',
         customer_info: {
           email: user.email,
-          payment_method: paymentMethod
+          payment_method: 'paypal'
         }
       };
 
@@ -135,7 +163,7 @@ const Checkout = () => {
 
       if (error) throw error;
 
-      // For MVP, simulate payment processing
+      // For MVP, simulate PayPal processing
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Update order status to completed
@@ -151,10 +179,10 @@ const Checkout = () => {
 
       navigate(`/order-complete/${order.id}`);
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('PayPal payment error:', error);
       toast({
         title: "Payment Failed",
-        description: "There was an error processing your payment. Please try again.",
+        description: "There was an error processing your PayPal payment. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -273,16 +301,10 @@ const Checkout = () => {
               </Card>
 
               {/* Payment Methods */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Payment Method</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground mb-6">
-                    Choose your preferred payment method to complete your purchase.
-                  </p>
-
-                  <div className="space-y-4">
+              <div className="space-y-6">
+                {/* Terms Agreement */}
+                <Card>
+                  <CardContent className="pt-6">
                     <div className="flex items-start space-x-3 p-4 border rounded-lg">
                       <Checkbox 
                         id="terms-agreement"
@@ -313,50 +335,56 @@ const Checkout = () => {
                         </label>
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
 
-                    <div className="space-y-3">
-                      <Button 
-                        variant="outline" 
-                        className="w-full h-16 text-left justify-start"
-                        onClick={() => handlePayment('card')}
-                        disabled={processing || !agreedToTerms}
-                      >
-                        <CreditCard className="w-6 h-6 mr-3" />
-                        <div>
-                          <div className="font-semibold">Credit/Debit Card</div>
-                          <div className="text-sm text-muted-foreground">Visa, Mastercard, American Express</div>
-                        </div>
-                      </Button>
+                {/* Stripe Card Payment */}
+                {agreedToTerms && (
+                  <StripeProvider amount={plugin.price}>
+                    <StripeCardForm
+                      amount={plugin.price}
+                      pluginId={plugin.id}
+                      pluginTitle={plugin.title}
+                      onSuccess={handlePaymentSuccess}
+                      disabled={processing}
+                    />
+                  </StripeProvider>
+                )}
 
-                      <Button 
-                        variant="outline" 
-                        className="w-full h-16 text-left justify-start"
-                        onClick={() => handlePayment('paypal')}
-                        disabled={processing || !agreedToTerms}
-                      >
-                        <div className="w-6 h-6 mr-3 bg-[#0070ba] rounded flex items-center justify-center text-white text-xs font-bold">
-                          PP
-                        </div>
-                        <div>
-                          <div className="font-semibold">PayPal</div>
-                          <div className="text-sm text-muted-foreground">Pay with your PayPal account</div>
-                        </div>
-                      </Button>
-                    </div>
+                {/* PayPal Alternative */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-[#0070ba] rounded flex items-center justify-center text-white text-xs font-bold">
+                        PP
+                      </div>
+                      Alternative Payment
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={handlePayPalPayment}
+                      disabled={processing || !agreedToTerms}
+                      size="lg"
+                    >
+                      Pay with PayPal - ${plugin.price.toFixed(2)}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {processing && (
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
+                    <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+                    <p className="text-sm">Processing your payment...</p>
                   </div>
+                )}
 
-                  {processing && (
-                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
-                      <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-                      <p className="text-sm">Processing your payment...</p>
-                    </div>
-                  )}
-
-                  <div className="text-xs text-muted-foreground pt-4 border-t">
-                    <p>By completing this purchase, you agree to our Terms of Service and Privacy Policy. Your payment is secured with industry-standard encryption.</p>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="text-xs text-muted-foreground pt-4 border-t">
+                  <p>By completing this purchase, you agree to our Terms of Service and Privacy Policy. Your payment is secured with industry-standard encryption.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,8 @@ interface Order {
 
 const OrderComplete = () => {
   const { orderId } = useParams();
+  const [searchParams] = useSearchParams();
+  const paymentIntent = searchParams.get('payment_intent');
   const { user } = useAuth();
   const { toast } = useToast();
   const [order, setOrder] = useState<Order | null>(null);
@@ -59,15 +61,24 @@ const OrderComplete = () => {
 
   useEffect(() => {
     const fetchOrder = async () => {
-      if (!orderId || !user) return;
+      if (!user) return;
       
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('orders')
           .select('*')
-          .eq('id', orderId)
-          .eq('customer_id', user.id)
-          .single();
+          .eq('customer_id', user.id);
+
+        // Search by order ID or payment intent ID
+        if (orderId) {
+          query = query.eq('id', orderId);
+        } else if (paymentIntent) {
+          query = query.eq('customer_info->>stripe_payment_intent_id', paymentIntent);
+        } else {
+          throw new Error('No order identifier provided');
+        }
+
+        const { data, error } = await query.single();
 
         if (error) throw error;
         setOrder({
@@ -94,7 +105,7 @@ const OrderComplete = () => {
     };
 
     fetchOrder();
-  }, [orderId, user, toast]);
+  }, [orderId, paymentIntent, user, toast]);
 
   if (loading) {
     return (
