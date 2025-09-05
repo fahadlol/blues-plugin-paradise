@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CreditCard, Shield, ArrowLeft, ExternalLink } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -338,41 +339,64 @@ const Checkout = () => {
                   </CardContent>
                 </Card>
 
-                {/* Stripe Card Payment */}
+                {/* Stripe & PayPal Payments */}
                 {agreedToTerms && (
-                  <StripeProvider amount={plugin.price}>
-                    <StripeCardForm
-                      amount={plugin.price}
-                      pluginId={plugin.id}
-                      pluginTitle={plugin.title}
-                      onSuccess={handlePaymentSuccess}
-                      disabled={processing}
-                    />
-                  </StripeProvider>
+                  <Tabs defaultValue="stripe" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="stripe">Credit Card</TabsTrigger>
+                      <TabsTrigger value="paypal">PayPal</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="stripe" className="space-y-4">
+                      <StripeProvider amount={plugin.price}>
+                        <StripeCardForm
+                          amount={plugin.price}
+                          pluginId={plugin.id}
+                          pluginTitle={plugin.title}
+                          onSuccess={handlePaymentSuccess}
+                          disabled={processing}
+                        />
+                      </StripeProvider>
+                    </TabsContent>
+                    
+                    <TabsContent value="paypal" className="space-y-4">
+                      <PayPalProvider>
+                        <PayPalCheckout
+                          amount={plugin.price}
+                          pluginId={plugin.id}
+                          pluginTitle={plugin.title}
+                          onSuccess={handlePaymentSuccess}
+                          disabled={processing}
+                        />
+                      </PayPalProvider>
+                    </TabsContent>
+                  </Tabs>
                 )}
 
-                {/* PayPal Alternative */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-[#0070ba] rounded flex items-center justify-center text-white text-xs font-bold">
-                        PP
-                      </div>
-                      Alternative Payment
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={handlePayPalPayment}
-                      disabled={processing || !agreedToTerms}
-                      size="lg"
-                    >
-                      Pay with PayPal - ${plugin.price.toFixed(2)}
-                    </Button>
-                  </CardContent>
-                </Card>
+                {/* Legacy PayPal Button (kept as fallback) */}
+                {false && agreedToTerms && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-[#0070ba] rounded flex items-center justify-center text-white text-xs font-bold">
+                          PP
+                        </div>
+                        Alternative Payment
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={handlePayPalPayment}
+                        disabled={processing || !agreedToTerms}
+                        size="lg"
+                      >
+                        Pay with PayPal - ${plugin.price.toFixed(2)}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {processing && (
                   <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">

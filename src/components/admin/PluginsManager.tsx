@@ -10,9 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Edit, Trash2, Eye, Star, Download } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Star, Download, Package, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { FileManager } from "./FileManager";
 
 interface Plugin {
   id: string;
@@ -29,6 +30,10 @@ interface Plugin {
   is_featured: boolean;
   is_active: boolean;
   created_at: string;
+  file_path?: string;
+  file_version?: number;
+  file_size?: number;
+  download_count?: number;
 }
 
 interface PluginsManagerProps {
@@ -320,6 +325,25 @@ const PluginsManager = ({ onStatsUpdate }: PluginsManagerProps) => {
                 </div>
               </div>
 
+              {editingPlugin && (
+                <div className="mt-6">
+                  <FileManager
+                    pluginId={editingPlugin.id}
+                    currentFilePath={editingPlugin.file_path}
+                    currentFileSize={editingPlugin.file_size}
+                    currentVersion={editingPlugin.file_version}
+                    onFileUpdate={(filePath, fileSize, version) => {
+                      setEditingPlugin({
+                        ...editingPlugin,
+                        file_path: filePath,
+                        file_size: fileSize,
+                        file_version: version
+                      });
+                    }}
+                  />
+                </div>
+              )}
+
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
@@ -348,6 +372,7 @@ const PluginsManager = ({ onStatsUpdate }: PluginsManagerProps) => {
                 <TableHead>Category</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Downloads</TableHead>
+                <TableHead>File Info</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -378,7 +403,27 @@ const PluginsManager = ({ onStatsUpdate }: PluginsManagerProps) => {
                   <TableCell>
                     <div className="flex items-center space-x-1">
                       <Download className="w-3 h-3" />
-                      <span>{plugin.downloads.toLocaleString()}</span>
+                      <span>{(plugin.download_count || plugin.downloads || 0).toLocaleString()}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      {plugin.file_path ? (
+                        <>
+                          <div className="flex items-center space-x-1 text-xs">
+                            <FileText className="w-3 h-3" />
+                            <span>v{plugin.file_version || 1}</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {plugin.file_size ? `${(plugin.file_size / 1024 / 1024).toFixed(1)}MB` : 'Unknown size'}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                          <Package className="w-3 h-3" />
+                          <span>No file</span>
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>

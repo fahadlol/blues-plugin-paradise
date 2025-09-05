@@ -83,6 +83,60 @@ export type Database = {
         }
         Relationships: []
       }
+      plugin_downloads: {
+        Row: {
+          created_at: string
+          customer_id: string
+          download_url: string
+          downloaded_at: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          order_id: string
+          plugin_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          download_url: string
+          downloaded_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          order_id: string
+          plugin_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          download_url?: string
+          downloaded_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          order_id?: string
+          plugin_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plugin_downloads_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plugin_downloads_plugin_id_fkey"
+            columns: ["plugin_id"]
+            isOneToOne: false
+            referencedRelation: "plugins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plugins: {
         Row: {
           category: string
@@ -91,8 +145,12 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string
+          download_count: number | null
           downloads: number
           features: Json | null
+          file_path: string | null
+          file_size: number | null
+          file_version: number | null
           id: string
           is_active: boolean
           is_featured: boolean
@@ -110,8 +168,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description: string
+          download_count?: number | null
           downloads?: number
           features?: Json | null
+          file_path?: string | null
+          file_size?: number | null
+          file_version?: number | null
           id?: string
           is_active?: boolean
           is_featured?: boolean
@@ -129,8 +191,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string
+          download_count?: number | null
           downloads?: number
           features?: Json | null
+          file_path?: string | null
+          file_size?: number | null
+          file_version?: number | null
           id?: string
           is_active?: boolean
           is_featured?: boolean
@@ -211,6 +277,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_download_link: {
+        Args: {
+          p_customer_id: string
+          p_expires_hours?: number
+          p_order_id: string
+          p_plugin_id: string
+        }
+        Returns: string
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

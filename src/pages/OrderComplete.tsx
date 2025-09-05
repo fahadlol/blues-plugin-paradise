@@ -26,6 +26,8 @@ interface Order {
   };
 }
 
+import { DownloadManager } from '@/components/DownloadManager';
+
 const OrderComplete = () => {
   const { orderId } = useParams();
   const [searchParams] = useSearchParams();
@@ -39,6 +41,61 @@ const OrderComplete = () => {
   useEffect(() => {
     document.title = "Order Complete | Blues Marketplace";
     
+    const handlePaymentSuccess = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentIntentId = urlParams.get('payment_intent');
+      
+      if (paymentIntentId && user) {
+        try {
+          // Update order status and generate download links
+          const { data: orders, error: fetchError } = await supabase
+            .from('orders')
+            .select('id, items, customer_id')
+            .eq('customer_info->>stripe_payment_intent_id', paymentIntentId)
+            .eq('customer_id', user.id);
+
+          if (fetchError) throw fetchError;
+
+          for (const order of (Array.isArray(orders) ? orders : [])) {
+            // Update order status
+            await supabase
+              .from('orders')
+              .update({ status: 'paid' })
+              .eq('id', order.id);
+
+            // Generate download links for each item
+            const items = Array.isArray(order.items) ? order.items : [];
+            for (const item of items) {
+              if (item.plugin_id) {
+                const downloadLink = await supabase.rpc('create_download_link', {
+                  p_plugin_id: item.plugin_id,
+                  p_customer_id: user.id,
+                  p_order_id: order.id,
+                  p_expires_hours: 24
+                });
+
+                console.log('Generated download link:', downloadLink);
+              }
+            }
+          }
+          
+          toast({
+            title: "Download Links Generated",
+            description: "Your download links have been created and will expire in 24 hours"
+          });
+        } catch (error: any) {
+          console.error('Error processing payment success:', error);
+          toast({
+            title: "Warning",
+            description: "Payment processed but there was an issue generating download links. Contact support.",
+            variant: "destructive"
+          });
+        }
+      }
+    };
+
+    handlePaymentSuccess();
+
     const fetchRefundPolicy = async () => {
       try {
         const { data } = await supabase
@@ -57,7 +114,7 @@ const OrderComplete = () => {
     };
 
     fetchRefundPolicy();
-  }, []);
+  }, [user, toast]);
 
   useEffect(() => {
     const fetchOrder = async () => {
