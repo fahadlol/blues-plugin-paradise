@@ -10,6 +10,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ReviewForm } from "@/components/ReviewForm";
+import { ReviewsList } from "@/components/ReviewsList";
+import { PluginStats } from "@/components/PluginStats";
 
 interface Plugin {
   id: string;
@@ -36,6 +39,9 @@ const PluginDetail = () => {
   const { id } = useParams();
   const [plugin, setPlugin] = useState<Plugin | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [existingReview, setExistingReview] = useState<any>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
   const { user, userRole } = useAuth();
   const { toast } = useToast();
 
@@ -71,7 +77,61 @@ const PluginDetail = () => {
     };
 
     fetchPlugin();
-  }, [id, toast]);
+  }, [id, user, toast]);
+
+  const checkPurchaseStatus = async () => {
+    if (!user || !id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('items')
+        .eq('customer_id', user.id)
+        .in('status', ['paid', 'completed']);
+
+      if (error) throw error;
+
+      const purchased = data?.some(order => {
+        const items = Array.isArray(order.items) ? order.items : [];
+        return items.some((item: any) => item.plugin_id === id);
+      });
+
+      setHasPurchased(purchased || false);
+    } catch (error) {
+      console.error('Error checking purchase status:', error);
+    }
+  };
+
+  const checkExistingReview = async () => {
+    if (!user || !id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('plugin_reviews')
+        .select('id, rating, review_text')
+        .eq('plugin_id', id)
+        .eq('customer_id', user.id)
+        .single();
+
+      if (data && !error) {
+        setExistingReview(data);
+      }
+    } catch (error) {
+      // No existing review found
+    }
+  };
+
+  const handleReviewSubmitted = () => {
+    // Refresh plugin data and reviews
+    setShowReviewForm(false);
+    checkExistingReview();
+    // The PluginStats and ReviewsList components will refresh automatically
+  };
+
+  const handleEditReview = (review: { id: string; rating: number; review_text: string; }) => {
+    setExistingReview(review);
+    setShowReviewForm(true);
+  };
 
   if (loading) {
     return (
@@ -199,7 +259,8 @@ const PluginDetail = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Main Content */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-8">
+              {/* Plugin Description */}
               <Card>
                 <CardHeader>
                   <CardTitle>About This Plugin</CardTitle>
@@ -225,10 +286,86 @@ const PluginDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Reviews Section */}
+              <div className="space-y-6">
+                {/* Review Form - Only for purchasers */}
+                {hasPurchased && user && (
+                  <div>
+                    {!showReviewForm && !existingReview && (
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <h3 className="text-lg font-semibold mb-2">Share Your Experience</h3>
+                            <p className="text-muted-foreground mb-4">
+                              Help other customers by writing a review for this plugin
+                            </p>
+                            <Button 
+                              onClick={() => setShowReviewForm(true)}
+                              variant="hero"
+                            >
+                              Write a Review
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {existingReview && !showReviewForm && (
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <h3 className="text-lg font-semibold mb-2">Your Review</h3>
+                            <div className="flex justify-center mb-2">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`w-5 h-5 ${
+                                    star <= existingReview.rating
+                                      ? "text-yellow-400 fill-current"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-muted-foreground mb-4">
+                              {existingReview.review_text || "No written review"}
+                            </p>
+                            <Button 
+                              onClick={() => setShowReviewForm(true)}
+                              variant="outline"
+                            >
+                              Edit Review
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {showReviewForm && (
+                      <ReviewForm
+                        pluginId={plugin.id}
+                        pluginTitle={plugin.title}
+                        onReviewSubmitted={handleReviewSubmitted}
+                        existingReview={existingReview}
+                      />
+                    )}
+                  </div>
+                )}
+
+                {/* Reviews List */}
+                <ReviewsList
+                  pluginId={plugin.id}
+                  onEditReview={handleEditReview}
+                />
+              </div>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
+              {/* Plugin Stats */}
+              <PluginStats pluginId={plugin.id} />
+
               {/* Requirements */}
               <Card>
                 <CardHeader>

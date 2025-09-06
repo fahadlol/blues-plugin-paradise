@@ -33,6 +33,7 @@ const PluginCard = ({
 
   const formatDownloads = (downloads: string | number) => {
     if (typeof downloads === 'number') {
+      if (downloads === 0) return 'No downloads';
       return downloads >= 1000 ? `${Math.floor(downloads / 1000)}k+` : `${downloads}`;
     }
     return downloads;
@@ -68,7 +69,9 @@ const PluginCard = ({
           </CardTitle>
           <div className="flex items-center space-x-1 text-gaming-orange">
             <Star className="w-4 h-4 fill-current" />
-            <span className="text-sm font-medium">{rating}</span>
+            <span className="text-sm font-medium">
+              {rating > 0 ? rating.toFixed(1) : 'No ratings'}
+            </span>
           </div>
         </div>
         <CardDescription className="text-muted-foreground line-clamp-2">
