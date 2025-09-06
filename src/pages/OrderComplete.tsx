@@ -66,9 +66,10 @@ const OrderComplete = () => {
             // Generate download links for each item
             const items = Array.isArray(order.items) ? order.items : [];
             for (const item of items) {
-              if (item.plugin_id) {
+              const typedItem = item as { plugin_id: string; title: string; price: number; };
+              if (typedItem.plugin_id) {
                 const downloadLink = await supabase.rpc('create_download_link', {
-                  p_plugin_id: item.plugin_id,
+                  p_plugin_id: typedItem.plugin_id,
                   p_customer_id: user.id,
                   p_order_id: order.id,
                   p_expires_hours: 24

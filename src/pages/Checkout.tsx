@@ -14,6 +14,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { StripeProvider } from "@/components/StripeProvider";
 import { StripeCardForm } from "@/components/StripeCardForm";
+import { PayPalProvider } from "@/components/PayPalProvider";
+import { PayPalCheckout } from "@/components/PayPalCheckout";
 
 interface Plugin {
   id: string;
