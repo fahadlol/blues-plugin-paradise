@@ -9,6 +9,24 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  build: {
+    // Optimize for cPanel hosting
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          supabase: ['@supabase/supabase-js'],
+          payment: ['@stripe/stripe-js', '@stripe/react-stripe-js', '@paypal/react-paypal-js']
+        }
+      }
+    }
+  },
+  base: './',
   plugins: [
     react(),
     mode === 'development' &&
