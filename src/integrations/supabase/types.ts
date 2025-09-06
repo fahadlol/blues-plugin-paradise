@@ -137,6 +137,42 @@ export type Database = {
           },
         ]
       }
+      plugin_reviews: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          is_verified_purchase: boolean
+          order_id: string | null
+          plugin_id: string
+          rating: number
+          review_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          is_verified_purchase?: boolean
+          order_id?: string | null
+          plugin_id: string
+          rating: number
+          review_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          is_verified_purchase?: boolean
+          order_id?: string | null
+          plugin_id?: string
+          rating?: number
+          review_text?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plugins: {
         Row: {
           category: string
