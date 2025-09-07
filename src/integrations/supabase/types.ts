@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      bundles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          features: Json
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          plugin_ids: Json
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          plugin_ids?: Json
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          plugin_ids?: Json
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      custom_plugin_requests: {
+        Row: {
+          assigned_to: string | null
+          budget_range: string
+          created_at: string
+          description: string
+          email: string
+          estimated_price: number | null
+          id: string
+          name: string
+          notes: string | null
+          server_type: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          budget_range: string
+          created_at?: string
+          description: string
+          email: string
+          estimated_price?: number | null
+          id?: string
+          name: string
+          notes?: string | null
+          server_type: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          budget_range?: string
+          created_at?: string
+          description?: string
+          email?: string
+          estimated_price?: number | null
+          id?: string
+          name?: string
+          notes?: string | null
+          server_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       custom_prebuilts: {
         Row: {
           components: Json
@@ -46,6 +136,102 @@ export type Database = {
           is_active?: boolean
           name?: string
           price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      discounts: {
+        Row: {
+          applies_to: string
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_amount: number | null
+          name: string
+          target_ids: Json | null
+          updated_at: string
+          used_count: number
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          applies_to: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_amount?: number | null
+          name: string
+          target_ids?: Json | null
+          updated_at?: string
+          used_count?: number
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          applies_to?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_amount?: number | null
+          name?: string
+          target_ids?: Json | null
+          updated_at?: string
+          used_count?: number
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          question: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          question: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          question?: string
+          sort_order?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -305,6 +491,69 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          setting_key: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          id: string
+          message: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

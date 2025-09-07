@@ -9,7 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { OrdersManager } from '@/components/admin/OrdersManager';
 import { PrebuiltsManager } from '@/components/admin/PrebuiltsManager';
 import PluginsManager from '@/components/admin/PluginsManager';
-import PoliciesManager from '@/components/admin/PoliciesManager';
+import { BundlesManager } from '@/components/admin/BundlesManager';
+import { DiscountsManager } from '@/components/admin/DiscountsManager';
+import { TicketsManager } from '@/components/admin/TicketsManager';
+import { FAQManager } from '@/components/admin/FAQManager';
+import { CustomPluginRequestsManager } from '@/components/admin/CustomPluginRequestsManager';
+import { SiteSettingsManager } from '@/components/admin/SiteSettingsManager';
 
 export default function AdminDashboard() {
   const { user, userRole, signOut, loading } = useAuth();
@@ -152,6 +157,12 @@ export default function AdminDashboard() {
                 <TabsTrigger value="plugins">Plugins</TabsTrigger>
                 <TabsTrigger value="prebuilts">Custom Prebuilts</TabsTrigger>
                 <TabsTrigger value="policies">Policies</TabsTrigger>
+                <TabsTrigger value="bundles">Bundles</TabsTrigger>
+                <TabsTrigger value="discounts">Discounts</TabsTrigger>
+                <TabsTrigger value="tickets">Tickets</TabsTrigger>
+                <TabsTrigger value="faqs">FAQs</TabsTrigger>
+                <TabsTrigger value="requests">Plugin Requests</TabsTrigger>
+                <TabsTrigger value="settings">Site Settings</TabsTrigger>
               </TabsList>
               
               <TabsContent value="orders" className="space-y-4">
@@ -168,6 +179,30 @@ export default function AdminDashboard() {
               
               <TabsContent value="policies" className="space-y-4">
                 <PoliciesManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+
+              <TabsContent value="bundles" className="space-y-4">
+                <BundlesManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+
+              <TabsContent value="discounts" className="space-y-4">
+                <DiscountsManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+
+              <TabsContent value="tickets" className="space-y-4">
+                <TicketsManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+
+              <TabsContent value="faqs" className="space-y-4">
+                <FAQManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+
+              <TabsContent value="requests" className="space-y-4">
+                <CustomPluginRequestsManager onStatsUpdate={fetchStats} />
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-4">
+                <SiteSettingsManager onStatsUpdate={fetchStats} />
               </TabsContent>
             </Tabs>
           </CardContent>
