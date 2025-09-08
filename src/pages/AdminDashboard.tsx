@@ -15,6 +15,7 @@ import { TicketsManager } from '@/components/admin/TicketsManager';
 import { FAQManager } from '@/components/admin/FAQManager';
 import { CustomPluginRequestsManager } from '@/components/admin/CustomPluginRequestsManager';
 import { SiteSettingsManager } from '@/components/admin/SiteSettingsManager';
+import PoliciesManager from '@/components/admin/PoliciesManager';
 
 export default function AdminDashboard() {
   const { user, userRole, signOut, loading } = useAuth();
