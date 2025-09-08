@@ -2,9 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star, Package } from "lucide-react";
+import { useBundles } from "@/hooks/useBundles";
+import { useNavigate } from "react-router-dom";
 
 const Bundles = () => {
-  const bundles = [
+  const { bundles, loading } = useBundles();
+  const navigate = useNavigate();
+
+  const staticBundles = [
     {
       title: "SMP Starter Pack",
       description: "Everything you need to launch a successful Survival Multiplayer server",
@@ -101,6 +106,47 @@ const Bundles = () => {
     }
   ];
 
+  // Use dynamic bundles if available, otherwise use static ones for demo
+  const displayBundles = bundles.length > 0 ? bundles.map(bundle => ({
+    title: bundle.name,
+    description: bundle.description,
+    originalPrice: `$${(bundle.price * 1.3).toFixed(2)}`,
+    bundlePrice: `$${bundle.price.toFixed(2)}`,
+    savings: `$${(bundle.price * 0.3).toFixed(0)}`,
+    rating: 4.8,
+    plugins: bundle.plugin_ids.map((_, index) => `Plugin ${index + 1}`),
+    features: bundle.features,
+    popular: bundle.is_featured,
+    id: bundle.id
+  })) : staticBundles;
+
+  const handleBundleClick = (bundle: any) => {
+    if (bundle.id) {
+      navigate(`/bundle/${bundle.id}`);
+    } else {
+      // For static bundles, show coming soon message
+      alert('Bundle details coming soon!');
+    }
+  };
+
+  if (loading) {
+    return (
+      <section id="bundles" className="py-20 bg-gradient-mesh">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="h-12 bg-muted rounded w-1/2 mx-auto mb-4"></div>
+            <div className="h-6 bg-muted rounded w-3/4 mx-auto"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-96 bg-muted rounded"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="bundles" className="py-20 bg-gradient-mesh">
       <div className="container mx-auto px-4">
@@ -119,7 +165,7 @@ const Bundles = () => {
 
         {/* Bundles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {bundles.map((bundle, index) => (
+          {displayBundles.map((bundle, index) => (
             <Card 
               key={index} 
               className={`relative bg-gradient-card border-border hover:border-primary/50 transition-all duration-300 hover:scale-105 hover:shadow-glow ${
@@ -202,6 +248,7 @@ const Bundles = () => {
                   variant={bundle.popular ? "hero" : "default"} 
                   size="lg" 
                   className="w-full"
+                  onClick={() => handleBundleClick(bundle)}
                 >
                   Get Bundle Now
                 </Button>

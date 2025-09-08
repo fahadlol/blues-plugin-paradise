@@ -4,6 +4,7 @@ import FeaturedPlugins from "@/components/FeaturedPlugins";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import CustomPlugins from "@/components/CustomPlugins";
 import Bundles from "@/components/Bundles";
+import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -16,6 +17,7 @@ const Index = () => {
         <WhyChooseUs />
         <CustomPlugins />
         <Bundles />
+        <FAQSection />
       </main>
       <Footer />
     </div>

@@ -3,10 +3,13 @@ import { Menu, X, User, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, userRole, signOut } = useAuth();
+  const { getSetting } = useSiteSettings();
+  const logoUrl = getSetting('site_logo_url', '');
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -30,9 +33,17 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-background rounded-sm"></div>
-            </div>
+            {logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt="Blues Marketplace" 
+                className="w-8 h-8 object-contain rounded-lg"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <div className="w-4 h-4 bg-background rounded-sm"></div>
+              </div>
+            )}
             <span className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
               Blues Marketplace
             </span>

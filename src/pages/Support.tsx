@@ -48,9 +48,14 @@ const Support = () => {
     if (!user) return;
     
     try {
-      // For MVP, we'll simulate tickets since we don't have a tickets table yet
-      // In a real implementation, you'd fetch from a support_tickets table
-      setTickets([]);
+      const { data, error } = await supabase
+        .from('support_tickets')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTickets(data || []);
     } catch (error) {
       console.error('Error fetching tickets:', error);
     }
@@ -78,8 +83,17 @@ const Support = () => {
 
     setLoading(true);
     try {
-      // For MVP, simulate ticket submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('support_tickets')
+        .insert({
+          user_id: user.id,
+          subject: formData.subject,
+          message: formData.message,
+          priority: formData.priority,
+          status: 'open'
+        });
+
+      if (error) throw error;
       
       toast({
         title: "Ticket Submitted",
@@ -87,6 +101,7 @@ const Support = () => {
       });
 
       setFormData({ subject: '', message: '', priority: 'medium' });
+      fetchTickets(); // Refresh tickets
     } catch (error) {
       console.error('Error submitting ticket:', error);
       toast({

@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import PluginDetail from "./pages/PluginDetail";
+import BundleDetail from "./pages/BundleDetail";
 import Checkout from "./pages/Checkout";
 import OrderComplete from "./pages/OrderComplete";
 import Support from "./pages/Support";
@@ -29,7 +30,9 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/plugin/:id" element={<PluginDetail />} />
+            <Route path="/bundle/:id" element={<BundleDetail />} />
             <Route path="/checkout/:id" element={<Checkout />} />
+            <Route path="/checkout/bundle/:id" element={<Checkout />} />
             <Route path="/order-complete/:orderId" element={<OrderComplete />} />
             <Route path="/support" element={<Support />} />
             <Route path="/contact" element={<Contact />} />

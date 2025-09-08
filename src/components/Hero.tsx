@@ -1,8 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Play, Zap, Shield, Star } from "lucide-react";
 import heroImage from "@/assets/hero-bg.jpg";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Hero = () => {
+  const { getSetting } = useSiteSettings();
+  const videoUrl = getSetting('hero_video_url', '');
+
+  const handleWatchDemo = () => {
+    if (videoUrl) {
+      window.open(videoUrl, '_blank');
+    } else {
+      // Fallback to demo section
+      document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section 
       id="home" 
@@ -56,7 +69,12 @@ const Hero = () => {
               <Zap className="w-5 h-5 mr-2" />
               Shop Plugins Now
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="text-lg px-8 py-6"
+              onClick={handleWatchDemo}
+            >
               <Play className="w-5 h-5 mr-2" />
               Watch Demo
             </Button>

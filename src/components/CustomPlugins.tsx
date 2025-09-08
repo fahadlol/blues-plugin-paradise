@@ -5,15 +5,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Code, Zap, Users, Gamepad2 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const CustomPlugins = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
+    email: user?.email || "",
     serverType: "",
     description: "",
     budget: ""
   });
+  const [submitting, setSubmitting] = useState(false);
 
   const serverTypes = [
     "SMP (Survival Multiplayer)",
@@ -55,11 +61,51 @@ const CustomPlugins = () => {
     }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Custom plugin request:", formData);
-    // You would typically send this to your backend
+    setSubmitting(true);
+
+    try {
+      const requestData = {
+        name: formData.name,
+        email: formData.email,
+        server_type: formData.serverType,
+        description: formData.description,
+        budget_range: formData.budget,
+        user_id: user?.id || null,
+        status: 'pending'
+      };
+
+      const { error } = await supabase
+        .from('custom_plugin_requests')
+        .insert(requestData);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Submitted!",
+        description: "We'll get back to you within 24 hours with a detailed quote.",
+      });
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: user?.email || "",
+        serverType: "",
+        description: "",
+        budget: ""
+      });
+
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit your request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -149,7 +195,8 @@ const CustomPlugins = () => {
                       <SelectValue placeholder="Select your budget range" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="under-500">Under $500</SelectItem>
+                      <SelectItem value="50-200">$50 - $200</SelectItem>
+                      <SelectItem value="200-500">$200 - $500</SelectItem>
                       <SelectItem value="500-1000">$500 - $1,000</SelectItem>
                       <SelectItem value="1000-2500">$1,000 - $2,500</SelectItem>
                       <SelectItem value="2500-5000">$2,500 - $5,000</SelectItem>
@@ -158,8 +205,14 @@ const CustomPlugins = () => {
                   </Select>
                 </div>
 
-                <Button type="submit" variant="hero" size="lg" className="w-full">
-                  Submit Request
+                <Button 
+                  type="submit" 
+                  variant="hero" 
+                  size="lg" 
+                  className="w-full"
+                  disabled={submitting}
+                >
+                  {submitting ? "Submitting..." : "Submit Request"}
                 </Button>
               </form>
             </CardContent>
