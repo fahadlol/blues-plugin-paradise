@@ -65,6 +65,17 @@ const CustomPlugins = () => {
     e.preventDefault();
     setSubmitting(true);
 
+    // Require authentication for security
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit a custom plugin request.",
+        variant: "destructive",
+      });
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const requestData = {
         name: formData.name,
@@ -72,7 +83,7 @@ const CustomPlugins = () => {
         server_type: formData.serverType,
         description: formData.description,
         budget_range: formData.budget,
-        user_id: user?.id || null,
+        user_id: user.id,
         status: 'pending'
       };
 

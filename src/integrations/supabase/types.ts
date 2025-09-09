@@ -70,7 +70,7 @@ export type Database = {
           server_type: string
           status: string
           updated_at: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           assigned_to?: string | null
@@ -85,7 +85,7 @@ export type Database = {
           server_type: string
           status?: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           assigned_to?: string | null
@@ -100,7 +100,7 @@ export type Database = {
           server_type?: string
           status?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
