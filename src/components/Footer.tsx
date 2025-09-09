@@ -9,10 +9,10 @@ const Footer = () => {
       { label: "Pricing", href: "#pricing" }
     ],
     support: [
-      { label: "Documentation", href: "#docs" },
-      { label: "Contact Support", href: "#contact" },
-      { label: "Community", href: "#community" },
-      { label: "Status", href: "#status" }
+      { label: "Documentation", href: "/support" },
+      { label: "Contact Support", href: "/contact" },
+      { label: "Community", href: "/contact" },
+      { label: "Status", href: "/support" }
     ],
     company: [
       { label: "About Us", href: "#about" },
@@ -29,10 +29,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { icon: MessageCircle, href: "#discord", label: "Discord" },
-    { icon: Twitter, href: "#twitter", label: "Twitter" },
-    { icon: Github, href: "#github", label: "GitHub" },
-    { icon: Mail, href: "#email", label: "Email" }
+    { icon: MessageCircle, href: "https://discord.gg/YpBvZzDFRm", label: "Discord" },
+    { icon: Twitter, href: "#", label: "Twitter" },
+    { icon: Github, href: "#", label: "GitHub" },
+    { icon: Mail, href: "/contact", label: "Email" }
   ];
 
   return (

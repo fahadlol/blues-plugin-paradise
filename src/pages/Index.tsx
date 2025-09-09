@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import FeaturedPlugins from "@/components/FeaturedPlugins";
 import WhyChooseUs from "@/components/WhyChooseUs";
+import PlatformStats from "@/components/PlatformStats";
 import CustomPlugins from "@/components/CustomPlugins";
 import Bundles from "@/components/Bundles";
 import FAQSection from "@/components/FAQSection";
@@ -15,6 +16,7 @@ const Index = () => {
         <Hero />
         <FeaturedPlugins />
         <WhyChooseUs />
+        <PlatformStats />
         <CustomPlugins />
         <Bundles />
         <FAQSection />
