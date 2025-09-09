@@ -17,10 +17,12 @@ interface SupportTicket {
   id: string;
   subject: string;
   message: string;
-  status: 'open' | 'in_progress' | 'resolved';
-  priority: 'low' | 'medium' | 'high';
+  status: string;
+  priority: string;
   created_at: string;
+  updated_at: string;
   user_id: string;
+  assigned_to?: string;
 }
 
 const Support = () => {
@@ -31,7 +33,7 @@ const Support = () => {
   const [formData, setFormData] = useState({
     subject: '',
     message: '',
-    priority: 'medium' as 'low' | 'medium' | 'high'
+    priority: 'medium' as string
   });
 
   useEffect(() => {
@@ -262,7 +264,7 @@ const Support = () => {
                           <label className="text-sm font-medium">Priority</label>
                           <select
                             value={formData.priority}
-                            onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                             className="w-full px-3 py-2 border border-input rounded-md bg-background"
                           >
                             <option value="low">Low</option>

@@ -14,6 +14,7 @@ import OrderComplete from "./pages/OrderComplete";
 import Support from "./pages/Support";
 import Contact from "./pages/Contact";
 import PolicyPage from "./pages/PolicyPage";
+import MyDownloads from "./pages/MyDownloads";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/checkout/:id" element={<Checkout />} />
             <Route path="/checkout/bundle/:id" element={<Checkout />} />
             <Route path="/order-complete/:orderId" element={<OrderComplete />} />
+            <Route path="/my-downloads" element={<MyDownloads />} />
             <Route path="/support" element={<Support />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/policies/:type" element={<PolicyPage />} />

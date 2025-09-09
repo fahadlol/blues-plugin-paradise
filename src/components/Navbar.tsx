@@ -86,12 +86,15 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-2">
-                {(userRole === 'admin' || userRole === 'staff') && (
-                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/admin'}>
-                    <Settings className="w-4 h-4 mr-1" />
-                    Admin
+                  {(userRole === 'admin' || userRole === 'staff') && (
+                    <Button variant="outline" size="sm" onClick={() => window.location.href = '/admin'}>
+                      <Settings className="w-4 h-4 mr-1" />
+                      Admin
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/my-downloads'}>
+                    My Downloads
                   </Button>
-                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
@@ -157,6 +160,9 @@ const Navbar = () => {
                       Admin Dashboard
                     </Button>
                   )}
+                  <Button variant="outline" size="sm" onClick={() => window.location.href = '/my-downloads'}>
+                    My Downloads
+                  </Button>
                   <Button variant="outline" size="sm" onClick={signOut}>
                     <LogOut className="w-4 h-4 mr-1" />
                     Sign Out
