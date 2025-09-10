@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, Download, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCart } from "@/hooks/useCart";
+import { CartNotification } from "@/components/CartNotification";
+import { useState } from "react";
 
 interface PluginCardProps {
   id?: string;
@@ -24,6 +27,27 @@ const PluginCard = ({
   thumbnail, 
   category 
 }: PluginCardProps) => {
+  const { addItem, isInCart } = useCart();
+  const [showNotification, setShowNotification] = useState(false);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!id) return;
+
+    const numericPrice = typeof price === 'string' ? parseFloat(price.replace('$', '')) : price;
+    
+    addItem({
+      id,
+      title,
+      price: numericPrice,
+      thumbnail,
+      category
+    });
+    
+    setShowNotification(true);
+  };
   const formatPrice = (price: string | number) => {
     if (typeof price === 'number') {
       return `$${price.toFixed(2)}`;
@@ -89,23 +113,57 @@ const PluginCard = ({
         </div>
       </CardContent>
 
-      <CardFooter className="pt-4">
-        <Button variant="hero" className="w-full">
-          Buy Now
-        </Button>
+      <CardFooter className="pt-4 space-y-2">
+        {id && isInCart(id) ? (
+          <Link to="/cart" className="w-full">
+            <Button variant="outline" className="w-full">
+              View in Cart
+            </Button>
+          </Link>
+        ) : (
+          <Button 
+            variant="hero" 
+            className="w-full"
+            onClick={handleAddToCart}
+            disabled={!id}
+          >
+            Add to Cart
+          </Button>
+        )}
+        {id && (
+          <Link to={`/plugin/${id}`} className="w-full">
+            <Button variant="outline" className="w-full">
+              View Details
+            </Button>
+          </Link>
+        )}
       </CardFooter>
     </Card>
   );
 
   if (id) {
     return (
-      <Link to={`/plugin/${id}`} className="block">
-        {cardContent}
-      </Link>
+      <>
+        <Link to={`/plugin/${id}`} className="block">
+          {cardContent}
+        </Link>
+        <CartNotification 
+          show={showNotification} 
+          onClose={() => setShowNotification(false)} 
+        />
+      </>
     );
   }
 
-  return cardContent;
+  return (
+    <>
+      {cardContent}
+      <CartNotification 
+        show={showNotification} 
+        onClose={() => setShowNotification(false)} 
+      />
+    </>
+  );
 };
 
 export default PluginCard;

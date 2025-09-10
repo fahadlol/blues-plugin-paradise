@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut, Settings } from "lucide-react";
+import { Menu, X, User, LogOut, Settings, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, userRole, signOut } = useAuth();
+  const { itemCount } = useCart();
   const { getSetting } = useSiteSettings();
   const logoUrl = getSetting('site_logo_url', '');
 
@@ -84,6 +87,14 @@ const Navbar = () => {
 
           {/* Auth Section */}
           <div className="hidden md:flex items-center space-x-4">
+            <Button variant="ghost" size="sm" onClick={() => window.location.href = '/cart'} className="relative">
+              <ShoppingCart className="w-4 h-4" />
+              {itemCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                  {itemCount}
+                </Badge>
+              )}
+            </Button>
             {user ? (
               <div className="flex items-center space-x-2">
                   {(userRole === 'admin' || userRole === 'staff') && (

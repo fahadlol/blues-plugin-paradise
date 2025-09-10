@@ -12,6 +12,7 @@ import { PrebuiltsManager } from '@/components/admin/PrebuiltsManager';
 import PluginsManager from '@/components/admin/PluginsManager';
 import { BundlesManager } from '@/components/admin/BundlesManager';
 import { DiscountsManager } from '@/components/admin/DiscountsManager';
+import { CouponManager } from '@/components/CouponManager';
 import { TicketsManager } from '@/components/admin/TicketsManager';
 import { FAQManager } from '@/components/admin/FAQManager';
 import { CustomPluginRequestsManager } from '@/components/admin/CustomPluginRequestsManager';
@@ -200,7 +201,7 @@ export default function AdminDashboard() {
               </TabsContent>
 
               <TabsContent value="discounts" className="space-y-4">
-                <DiscountsManager onStatsUpdate={fetchStats} />
+                <CouponManager onUpdate={fetchStats} />
               </TabsContent>
 
               <TabsContent value="tickets" className="space-y-4">

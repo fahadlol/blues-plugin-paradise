@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Star, Download, Shield, Server, Users, Zap } from "lucide-react";
+import { ArrowLeft, Star, Download, Shield, Server, Users, Zap, ShoppingCart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { CartNotification } from "@/components/CartNotification";
 import { ReviewForm } from "@/components/ReviewForm";
 import { ReviewsList } from "@/components/ReviewsList";
 import { PluginStats } from "@/components/PluginStats";
@@ -42,8 +44,24 @@ const PluginDetail = () => {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [existingReview, setExistingReview] = useState<any>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showCartNotification, setShowCartNotification] = useState(false);
   const { user, userRole } = useAuth();
+  const { addItem, isInCart } = useCart();
   const { toast } = useToast();
+
+  const handleAddToCart = () => {
+    if (!plugin) return;
+    
+    addItem({
+      id: plugin.id,
+      title: plugin.title,
+      price: plugin.price,
+      thumbnail: plugin.thumbnail,
+      category: plugin.category
+    });
+    
+    setShowCartNotification(true);
+  };
 
   useEffect(() => {
     const fetchPlugin = async () => {
@@ -218,11 +236,26 @@ const PluginDetail = () => {
 
                 <div className="flex items-center space-x-4 mb-8">
                   <div className="text-3xl font-bold">${plugin.price}</div>
-                  <Link to={`/checkout/${plugin.id}`}>
-                    <Button variant="hero" size="lg">
-                      Buy Now
-                    </Button>
-                  </Link>
+                  <div className="flex space-x-2">
+                    {id && isInCart(id) ? (
+                      <Link to="/cart">
+                        <Button variant="outline" size="lg">
+                          <ShoppingCart className="w-4 h-4 mr-2" />
+                          View in Cart
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button variant="hero" size="lg" onClick={handleAddToCart}>
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Add to Cart
+                      </Button>
+                    )}
+                    <Link to={`/checkout/${plugin.id}`}>
+                      <Button variant="outline" size="lg">
+                        Buy Now
+                      </Button>
+                    </Link>
+                  </div>
                   {(userRole === 'admin' || userRole === 'staff') && (
                     <Link to={`/admin/plugins/${plugin.id}/edit`}>
                       <Button variant="outline">Edit Plugin</Button>
@@ -428,6 +461,11 @@ const PluginDetail = () => {
           </div>
         </div>
       </section>
+
+      <CartNotification 
+        show={showCartNotification} 
+        onClose={() => setShowCartNotification(false)} 
+      />
 
       <Footer />
     </div>
