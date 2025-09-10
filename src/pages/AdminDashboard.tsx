@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { OrdersManager } from '@/components/admin/OrdersManager';
 import { PrebuiltsManager } from '@/components/admin/PrebuiltsManager';
 import PluginsManager from '@/components/admin/PluginsManager';
