@@ -11,8 +11,20 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const Cart = () => {
-  const { items, totalAmount, removeItem, updateQuantity, itemCount } = useCart();
+  const { 
+    items, 
+    subtotalAmount, 
+    discountAmount, 
+    totalAmount, 
+    removeItem, 
+    itemCount, 
+    appliedCoupon, 
+    applyCoupon, 
+    removeCoupon 
+  } = useCart();
   const [couponCode, setCouponCode] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const { toast } = useToast();
 
   if (items.length === 0) {
     return (
@@ -73,27 +85,17 @@ const Cart = () => {
                           <div className="mt-2 text-lg font-bold">
                             ${item.price.toFixed(2)}
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            disabled={item.quantity <= 1}
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                          <span className="w-8 text-center font-medium">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
+                         </div>
+                         <div className="text-right">
+                           <div className="text-lg font-bold">
+                             ${item.price.toFixed(2)}
+                           </div>
+                           {item.originalPrice && item.originalPrice !== item.price && (
+                             <div className="text-xs text-muted-foreground">
+                               Current: ${item.originalPrice.toFixed(2)}
+                             </div>
+                           )}
+                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -115,43 +117,105 @@ const Cart = () => {
                     <CardTitle>Order Summary</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      {items.map((item) => (
-                        <div key={item.id} className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            {item.title} x{item.quantity}
-                          </span>
-                          <span>${(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total</span>
-                      <span>${totalAmount.toFixed(2)}</span>
-                    </div>
+                     <div className="space-y-2">
+                       {items.map((item) => (
+                         <div key={item.id} className="flex justify-between text-sm">
+                           <span className="text-muted-foreground">
+                             {item.title}
+                           </span>
+                           <span>${item.price.toFixed(2)}</span>
+                         </div>
+                       ))}
+                     </div>
+                     
+                     <Separator />
+                     
+                     <div className="flex justify-between text-sm">
+                       <span>Subtotal</span>
+                       <span>${subtotalAmount.toFixed(2)}</span>
+                     </div>
+                     
+                     {appliedCoupon && (
+                       <div className="flex justify-between text-sm text-green-600">
+                         <span>Discount ({appliedCoupon.name})</span>
+                         <span>-${discountAmount.toFixed(2)}</span>
+                       </div>
+                     )}
+                     
+                     <Separator />
+                     
+                     <div className="flex justify-between font-semibold text-lg">
+                       <span>Total</span>
+                       <span>${totalAmount.toFixed(2)}</span>
+                     </div>
                   </CardContent>
                 </Card>
 
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Coupon Code</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="Enter coupon code"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                      />
-                      <Button variant="outline">Apply</Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                   <CardHeader>
+                     <CardTitle className="text-lg">Coupon Code</CardTitle>
+                   </CardHeader>
+                   <CardContent className="space-y-4">
+                     {appliedCoupon ? (
+                       <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
+                         <div className="flex items-center justify-between">
+                           <div>
+                             <div className="font-medium text-green-700 dark:text-green-300">
+                               {appliedCoupon.name}
+                             </div>
+                             <div className="text-sm text-green-600 dark:text-green-400">
+                               Code: {appliedCoupon.code}
+                             </div>
+                           </div>
+                           <Button 
+                             variant="ghost" 
+                             size="sm" 
+                             onClick={removeCoupon}
+                             className="text-green-700 hover:text-green-800"
+                           >
+                             Remove
+                           </Button>
+                         </div>
+                       </div>
+                     ) : (
+                       <div className="flex space-x-2">
+                         <Input
+                           placeholder="Enter coupon code"
+                           value={couponCode}
+                           onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                           disabled={couponLoading}
+                         />
+                         <Button 
+                           variant="outline" 
+                           onClick={async () => {
+                             if (!couponCode.trim()) return;
+                             setCouponLoading(true);
+                             const result = await applyCoupon(couponCode);
+                             if (result.success) {
+                               setCouponCode('');
+                               toast({
+                                 title: "Success",
+                                 description: result.message,
+                               });
+                             } else {
+                               toast({
+                                 title: "Invalid Coupon",
+                                 description: result.message,
+                                 variant: "destructive"
+                               });
+                             }
+                             setCouponLoading(false);
+                           }}
+                           disabled={couponLoading || !couponCode.trim()}
+                         >
+                           {couponLoading ? "Applying..." : "Apply"}
+                         </Button>
+                       </div>
+                     )}
+                   </CardContent>
+                 </Card>
 
-                <Link to="/checkout" className="block">
+                <Link to="/checkout-cart" className="block">
                   <Button variant="hero" size="lg" className="w-full">
                     Proceed to Checkout
                     <ArrowRight className="w-4 h-4 ml-2" />

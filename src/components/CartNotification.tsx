@@ -15,13 +15,15 @@ export const CartNotification = ({ show, onClose }: CartNotificationProps) => {
   useEffect(() => {
     if (show) {
       setVisible(true);
-      // Auto-hide after 4 seconds
+      // Auto-hide after 3 seconds
       const timer = setTimeout(() => {
         setVisible(false);
         setTimeout(onClose, 300); // Allow fade out animation
-      }, 4000);
+      }, 3000);
 
       return () => clearTimeout(timer);
+    } else {
+      setVisible(false);
     }
   }, [show, onClose]);
 
@@ -58,7 +60,7 @@ export const CartNotification = ({ show, onClose }: CartNotificationProps) => {
                 View Cart
               </Button>
             </Link>
-            <Link to="/checkout" className="flex-1">
+            <Link to="/checkout-cart" className="flex-1">
               <Button variant="hero" size="sm" className="w-full">
                 Checkout
               </Button>
