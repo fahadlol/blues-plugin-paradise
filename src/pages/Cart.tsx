@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
+import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 

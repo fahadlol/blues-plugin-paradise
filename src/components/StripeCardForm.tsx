@@ -6,20 +6,36 @@ import { CreditCard, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+interface CartItem {
+  id: string;
+  title: string;
+  price: number;
+  thumbnail: string;
+  category: string;
+}
+
+interface CouponInfo {
+  code: string;
+  name: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  min_amount?: number;
+}
+
 interface StripeCardFormProps {
   amount: number;
-  pluginId: string;
-  pluginTitle: string;
+  items: CartItem[];
   onSuccess: (paymentIntent: any) => void;
   disabled?: boolean;
+  appliedCoupon?: CouponInfo | null;
 }
 
 export const StripeCardForm = ({ 
   amount, 
-  pluginId, 
-  pluginTitle, 
+  items, 
   onSuccess, 
-  disabled 
+  disabled,
+  appliedCoupon 
 }: StripeCardFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -34,8 +50,13 @@ export const StripeCardForm = ({
       const { data, error } = await supabase.functions.invoke('create-payment-intent', {
         body: {
           amount: Math.round(amount * 100), // Convert to cents
-          plugin_id: pluginId,
-          plugin_title: pluginTitle,
+          items: items.map(item => ({
+            plugin_id: item.id,
+            title: item.title,
+            price: item.price,
+            category: item.category
+          })),
+          applied_coupon: appliedCoupon,
         },
       });
 
@@ -93,7 +114,7 @@ export const StripeCardForm = ({
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         toast({
           title: "Payment Successful!",
-          description: `You have successfully purchased ${pluginTitle}`,
+          description: `You have successfully purchased ${items.length} plugin(s)`,
         });
         onSuccess(paymentIntent);
       }

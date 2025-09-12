@@ -353,8 +353,13 @@ const Checkout = () => {
                       <StripeProvider amount={plugin.price}>
                         <StripeCardForm
                           amount={plugin.price}
-                          pluginId={plugin.id}
-                          pluginTitle={plugin.title}
+                          items={[{
+                            id: plugin.id,
+                            title: plugin.title,
+                            price: plugin.price,
+                            thumbnail: plugin.thumbnail || '',
+                            category: plugin.category || ''
+                          }]}
                           onSuccess={handlePaymentSuccess}
                           disabled={processing}
                         />
@@ -365,8 +370,13 @@ const Checkout = () => {
                       <PayPalProvider>
                         <PayPalCheckout
                           amount={plugin.price}
-                          pluginId={plugin.id}
-                          pluginTitle={plugin.title}
+                          items={[{
+                            id: plugin.id,
+                            title: plugin.title,
+                            price: plugin.price,
+                            thumbnail: plugin.thumbnail || '',
+                            category: plugin.category || ''
+                          }]}
                           onSuccess={handlePaymentSuccess}
                           disabled={processing}
                         />

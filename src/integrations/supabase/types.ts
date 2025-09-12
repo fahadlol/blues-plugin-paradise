@@ -575,6 +575,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      increment_coupon_usage: {
+        Args: { coupon_code: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "customer"
